@@ -21,12 +21,14 @@ router.post('/product', upload.single('productImage') ,async (req, res) => {
       folder:'products'
     })
   }
-  if(req.body.title && req.body.price && req.body.description && req.body.category && req.body.productType){
-    return res.send({
-      status: 0,
-      message: "fill all the fields"
-    })
-  }
+ 
+if(!req.body.title || !req.body.price || !req.body.description || !req.body.category || !req.body.productType){
+  return res.send({
+    status: 0,
+    message: "fill all the fields"
+  })
+}
+  
   const product = {
     title: req.body.title,
     description: req.body.description,

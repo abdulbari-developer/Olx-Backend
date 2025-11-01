@@ -2,7 +2,8 @@
 import express from 'express'
 import client from '../config.js';
 import { ObjectId } from 'mongodb';
-import dotenv from 'dotenv'
+import { upload } from '../Middleware/multer.js';
+import cloudinary from '../Middleware/cloudnairy.js';
 const router = express.Router()
 const myDB = client.db("Olx-clone");
 const Products = myDB.collection("products");
@@ -10,14 +11,26 @@ const Favourites = myDB.collection("favourites");
 import jwt from 'jsonwebtoken'
 
 
-
-router.post('/product', async (req, res) => {
+router.post('/product', upload.single('productImage') ,async (req, res) => {
     let authToken = req.headers['authorization'].split(' ')[1];
   let decoded = jwt.verify(authToken, process.env.SECRET);
   console.log(decoded)
+  let imageURL = null
+  if(req.file){
+    imageURL = await cloudinary.uploader.upload(req.file.path,{
+      folder:'products'
+    })
+  }
+  if(req.body.title && req.body.price && req.body.description && req.body.category && req.body.productType){
+    return res.send({
+      status: 0,
+      message: "fill all the fields"
+    })
+  }
   const product = {
     title: req.body.title,
     description: req.body.description,
+    productImage: imageURL?.secure_url,
     price: req.body.price,
     category: req.body.category,
     postedBy: decoded._id,

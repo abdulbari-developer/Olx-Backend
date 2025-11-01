@@ -193,4 +193,31 @@ router.post('/user/login', async (req, res) => {
         res.send(error)
     }
 })
+router.get('/auth/me', (req,res)=>{
+try {
+ let authToken = req.headers['authorization'].split(' ')[1];
+ if(!authToken){
+   return res.status(401).send({
+     status: 0,
+     message : 'Unauthorized'
+    })
+  }
+  else{
+  const decoded = jwt.verify(authToken,process.env.SECRET)
+  console.log(decoded,"decoded")
+   return res.status(200).send({
+                status: 1,
+                data : decoded
+            })
+}
+}  
+ catch (error) {
+    return res.send({
+            status: 0,
+            error: error,
+            message: "Something Went Wrong"
+        })
+
+}
+})
 export default router
